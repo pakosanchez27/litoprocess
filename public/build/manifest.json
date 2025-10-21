@@ -1,0 +1,88 @@
+{
+  "resources/css/app.css": {
+    "file": "assets/app-C2Ozy4Sk.css",
+    "src": "resources/css/app.css",
+    "isEntry": true,
+    "names": [
+      "app.css"
+    ]
+  },
+  "resources/js/app.js": {
+    "file": "assets/app-BVJQ0Pmb.js",
+    "name": "app",
+    "src": "resources/js/app.js",
+    "isEntry": true
+  },
+  "resources/js/config.js": {
+    "file": "assets/config-l0sNRNKZ.js",
+    "name": "config",
+    "src": "resources/js/config.js",
+    "isEntry": true
+  },
+  "resources/js/dashboards-analytics.js": {
+    "file": "assets/dashboards-analytics-DNd8drGX.js",
+    "name": "dashboards-analytics",
+    "src": "resources/js/dashboards-analytics.js",
+    "isEntry": true
+  },
+  "resources/js/extended-ui-perfect-scrollbar.js": {
+    "file": "assets/extended-ui-perfect-scrollbar-87gYG_r1.js",
+    "name": "extended-ui-perfect-scrollbar",
+    "src": "resources/js/extended-ui-perfect-scrollbar.js",
+    "isEntry": true
+  },
+  "resources/js/form-basic-inputs.js": {
+    "file": "assets/form-basic-inputs-CjS8llQr.js",
+    "name": "form-basic-inputs",
+    "src": "resources/js/form-basic-inputs.js",
+    "isEntry": true
+  },
+  "resources/js/main.js": {
+    "file": "assets/main-CWila6Zz.js",
+    "name": "main",
+    "src": "resources/js/main.js",
+    "isEntry": true
+  },
+  "resources/js/pages-account-settings-account.js": {
+    "file": "assets/pages-account-settings-account-CFTyzG2K.js",
+    "name": "pages-account-settings-account",
+    "src": "resources/js/pages-account-settings-account.js",
+    "isEntry": true
+  },
+  "resources/js/procedimientos/diagrama.js": {
+    "file": "assets/diagrama-BR_tJas0.js",
+    "name": "diagrama",
+    "src": "resources/js/procedimientos/diagrama.js",
+    "isEntry": true
+  },
+  "resources/js/procedimientos/formulario.js": {
+    "file": "assets/formulario-Ne2CK_VI.js",
+    "name": "formulario",
+    "src": "resources/js/procedimientos/formulario.js",
+    "isEntry": true
+  },
+  "resources/js/procedimientos/redactorIA.js": {
+    "file": "assets/redactorIA-DhdMZ4EW.js",
+    "name": "redactorIA",
+    "src": "resources/js/procedimientos/redactorIA.js",
+    "isEntry": true
+  },
+  "resources/js/ui-modals.js": {
+    "file": "assets/ui-modals-CYNbp-iO.js",
+    "name": "ui-modals",
+    "src": "resources/js/ui-modals.js",
+    "isEntry": true
+  },
+  "resources/js/ui-popover.js": {
+    "file": "assets/ui-popover-CbvAU9Mu.js",
+    "name": "ui-popover",
+    "src": "resources/js/ui-popover.js",
+    "isEntry": true
+  },
+  "resources/js/ui-toasts.js": {
+    "file": "assets/ui-toasts-CnAopp6a.js",
+    "name": "ui-toasts",
+    "src": "resources/js/ui-toasts.js",
+    "isEntry": true
+  }
+}
