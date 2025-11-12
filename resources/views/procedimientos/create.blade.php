@@ -167,68 +167,78 @@
                 </div>
 
                 {{-- ========== REFERENCIAS NORMATIVAS (CHIPS) ========== --}}
+                {{-- ========== REFERENCIAS NORMATIVAS E INTERNAS (CHIPS) ========== --}}
                 <div class="row mb-3">
                     <div class="col-12">
                         <div class="card p-3">
-                            <h5>Referencias Normativas</h5>
-                            <div class="row">
-                                <div class="col-12">
-                                    <div class="md-item col-12">
-                                        <label for="ref_tag_input" class="form-label fw-semibold">Referencias
-                                            Normativas</label>
+                            <h5>Referencias</h5>
 
-                                        <div id="ref_tag_box"
-                                            class="form-control d-flex flex-wrap gap-2 align-items-center" role="textbox"
-                                            aria-describedby="referencias_normativas-help"
-                                            aria-label="Referencias normativas (etiquetas)"
-                                            style="min-height:2.5em; cursor:text;">
-                                            <!-- chips se agregarán dinámicamente -->
-                                            <input id="ref_tag_input" list="referencias_options"
-                                                placeholder="Escribe y presiona Enter…"
-                                                style="flex:1 1 120px;border:none;outline:0;background:transparent;height:1.9em;color:inherit;">
-                                        </div>
+                            {{-- BASE COMPARTIDA (datalist) --}}
+                            <datalist id="ref_options_base">
+                                <option value="ISO 9001:2015 — Sistemas de gestión de la calidad"></option>
+                                <option value="ISO 14001:2015 — Sistemas de gestión ambiental"></option>
+                                <option value="ISO 45001:2018 — Seguridad y salud en el trabajo"></option>
+                                <option value="ISO 19011:2018 — Directrices para auditorías"></option>
+                                <option value="ISO 27001:2022 — Seguridad de la información"></option>
+                                <option value="FSC-STD-40-004 V3 — Cadena de custodia"></option>
+                                <option value="FSC-STD-40-005 V3 — Madera controlada"></option>
+                                <option value="FSC-STD-50-001 V2 — Requisitos de marcas FSC"></option>
+                                <option value="PEFC ST 2002:2020 — Cadena de custodia de productos forestales"></option>
+                                <option value="PEFC ST 2001:2020 — Reglas de uso de marcas PEFC"></option>
+                                <option value="NOM-035-STPS-2018 — Factores de riesgo psicosocial"></option>
+                                <option value="NOM-018-STPS-2015 — Clasificación y comunicación de peligros"></option>
+                                <option value="NOM-003-SEGOB-2011 — Protección civil"></option>
+                                <option value="IATF 16949:2016 — Automotriz (calidad)"></option>
+                                <option value="BPM — Buenas Prácticas de Manufactura (GMP)"></option>
+                                <option value="ISO 31000:2018 — Gestión del riesgo"></option>
+                                <option value="POL-001 — Política de Calidad"></option>
+                                <option value="MAN-002 — Manual de Producción"></option>
+                                <option value="PROC-005 — Procedimiento de Seguridad Industrial"></option>
+                            </datalist>
 
-                                        <datalist id="referencias_options">
-                                            <option value="ISO 9001:2015 — Sistemas de gestión de la calidad"></option>
-                                            <option value="ISO 14001:2015 — Sistemas de gestión ambiental"></option>
-                                            <option value="ISO 45001:2018 — Seguridad y salud en el trabajo"></option>
-                                            <option value="ISO 19011:2018 — Directrices para auditorías"></option>
-                                            <option value="ISO 27001:2022 — Seguridad de la información"></option>
-                                            <option value="FSC-STD-40-004 V3 — Cadena de custodia"></option>
-                                            <option value="FSC-STD-40-005 V3 — Madera controlada"></option>
-                                            <option value="FSC-STD-50-001 V2 — Requisitos de marcas FSC"></option>
-                                            <option value="PEFC ST 2002:2020 — Cadena de custodia de productos forestales">
-                                            </option>
-                                            <option value="PEFC ST 2001:2020 — Reglas de uso de marcas PEFC"></option>
-                                            <option value="NOM-035-STPS-2018 — Factores de riesgo psicosocial"></option>
-                                            <option
-                                                value="NOM-018-STPS-2015 — Sistema armonizado de clasificación y comunicación de peligros">
-                                            </option>
-                                            <option value="NOM-003-SEGOB-2011 — Señales y avisos de protección civil">
-                                            </option>
-                                            <option value="IATF 16949:2016 — Automotriz (calidad)"></option>
-                                            <option value="BPM — Buenas Prácticas de Manufactura (GMP)"></option>
-                                            <option value="ISO 31000:2018 — Gestión del riesgo"></option>
-                                        </datalist>
-
-                                        <input type="hidden" id="referencias_normativas" name="referencias_normativas"
-                                            value="{{ old('referencias_normativas') }}">
-
-                                        <small id="referencias_normativas-help" class="text-muted d-block mt-1">
-                                            Escribe, selecciona y presiona Enter o coma. Backspace borra la última. Clic en
-                                            ✖ para quitar.
-                                            Si alguna contiene “FSC”, se marcará automáticamente.
-                                        </small>
-
-                                        @error('referencias_normativas')
-                                            <p class="text-danger small mt-1">{{ $message }}</p>
-                                        @enderror
-                                    </div>
+                            {{-- ===== REFERENCIAS NORMATIVAS ===== --}}
+                            <div class="col-12 mb-4">
+                                <label for="refnorm_input" class="form-label fw-semibold">Referencias Normativas</label>
+                                <div class="d-flex flex-wrap gap-2 align-items-center mb-2">
+                                    <input type="text" class="form-control w-auto flex-fill" id="refnorm_input"
+                                        list="ref_options_base" placeholder="Escribe o selecciona y presiona Enter"
+                                        autocomplete="off">
                                 </div>
+
+                                <div id="chips_refnorm" class="form-control d-flex flex-wrap gap-2 align-items-center"
+                                    style="min-height:2.5em;"></div>
+
+                                <input type="hidden" id="refnorm_json" name="referencias_normativas"
+                                    value="{{ old('referencias_normativas', '[]') }}">
+
+                                @error('referencias_normativas')
+                                    <div class="invalid-feedback d-block">{{ $message }}</div>
+                                @enderror
+                            </div>
+
+                            {{-- ===== REFERENCIAS INTERNAS ===== --}}
+                            <div class="col-12">
+                                <label for="refint_input" class="form-label fw-semibold">Referencias Internas</label>
+                                <div class="d-flex flex-wrap gap-2 align-items-center mb-2">
+                                    <input type="text" class="form-control w-auto flex-fill" id="refint_input"
+                                        list="ref_options_base" placeholder="Escribe o selecciona y presiona Enter"
+                                        autocomplete="off">
+                                </div>
+
+                                <div id="chips_refint" class="form-control d-flex flex-wrap gap-2 align-items-center"
+                                    style="min-height:2.5em;"></div>
+
+                                <input type="hidden" id="refint_json" name="referencias_internas"
+                                    value="{{ old('referencias_internas', '[]') }}">
+
+                                @error('referencias_internas')
+                                    <div class="invalid-feedback d-block">{{ $message }}</div>
+                                @enderror
                             </div>
                         </div>
                     </div>
                 </div>
+
 
                 {{-- ========== TÍTULO ========== --}}
                 <div class="row mb-3">
@@ -317,43 +327,7 @@
                 <div class="row mb-3">
                     <div class="col 12">
                         <div class="card p-3">
-                            <!-- Referencias -->
-                            <div class="col-12 mb-4">
-                                <label for="ref_input" class="form-label fw-semibold">Referencias</label>
-                                <div class="d-flex flex-wrap gap-2 align-items-center mb-2">
-                                    <input type="text" class="form-control w-auto flex-fill" id="ref_input"
-                                        list="referencias_options" placeholder="Escribe o selecciona y presiona Enter"
-                                        autocomplete="off">
-                                    <datalist id="referencias_options">
-                                        <option value="ISO 9001:2015 — Sistemas de gestión de la calidad"></option>
-                                        <option value="ISO 14001:2015 — Sistemas de gestión ambiental"></option>
-                                        <option value="ISO 45001:2018 — Seguridad y salud en el trabajo"></option>
-                                        <option value="ISO 19011:2018 — Directrices para auditorías"></option>
-                                        <option value="ISO 27001:2022 — Seguridad de la información"></option>
-                                        <option value="FSC-STD-40-004 — Cadena de custodia"></option>
-                                        <option value="FSC-STD-40-005 — Madera controlada"></option>
-                                        <option value="FSC-STD-50-001 — Requisitos de marcas FSC"></option>
-                                        <option value="PEFC ST 2002:2020 — Cadena de custodia"></option>
-                                        <option value="PEFC ST 2001:2020 — Reglas de uso de marcas PEFC"></option>
-                                        <option value="NOM-035-STPS-2018 — Riesgo psicosocial"></option>
-                                        <option value="NOM-018-STPS-2015 — Clasificación y comunicación de peligros">
-                                        </option>
-                                        <option value="NOM-003-SEGOB-2011 — Protección civil"></option>
-                                        <option value="IATF 16949:2016 — Automotriz (calidad)"></option>
-                                        <option value="BPM — Buenas Prácticas de Manufactura (GMP)"></option>
-                                        <option value="ISO 31000:2018 — Gestión del riesgo"></option>
-                                    </datalist>
-                                </div>
 
-                                <div id="chips_referencias" class="form-control d-flex flex-wrap gap-2 align-items-center"
-                                    style="min-height:2.5em;"></div>
-                                <input type="hidden" id="referencias_json" name="referencias_json"
-                                    value="{{ old('referencias_json', '[]') }}">
-
-                                @error('referencias_json')
-                                    <div class="invalid-feedback d-block">{{ $message }}</div>
-                                @enderror
-                            </div>
 
                             <!-- Formatos -->
                             <div class="col-12">
@@ -671,7 +645,7 @@
                         📄 Generar Word
                     </button>
                 </div>
-                {{-- @if ($errors->any())
+                @if ($errors->any())
                     <div class="alert alert-danger">
                         <h6 class="mb-2">No se pudo generar el documento:</h6>
                         <ul class="mb-0">
@@ -680,7 +654,7 @@
                             @endforeach
                         </ul>
                     </div>
-                @endif --}}
+                @endif
 
             </form>
 
@@ -734,164 +708,168 @@
         </div>
     </div>
 
-   <script>
-document.addEventListener('DOMContentLoaded', () => {
-  const toggleBtn = document.getElementById('chatToggle');
-  const chatWindow = document.getElementById('chatWindow');
-  const closeBtn = document.getElementById('chatClose');
-  const sendBtn = document.getElementById('chatSend');
-  const input = document.getElementById('chatInput');
-  const messages = document.getElementById('chatMessages');
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const toggleBtn = document.getElementById('chatToggle');
+            const chatWindow = document.getElementById('chatWindow');
+            const closeBtn = document.getElementById('chatClose');
+            const sendBtn = document.getElementById('chatSend');
+            const input = document.getElementById('chatInput');
+            const messages = document.getElementById('chatMessages');
 
-  const WEBHOOK_URL = "https://n8n.srv914565.hstgr.cloud/webhook/chat-crear-procedimientos";
+            const WEBHOOK_URL = "https://litoprocess.aeo-ai.com/webhook/chatbot";
 
-  // --- Toggle ventana ---
-  toggleBtn.addEventListener('click', () => {
-    chatWindow.classList.toggle('hidden');
-    toggleBtn.style.display = chatWindow.classList.contains('hidden') ? 'flex' : 'none';
-    input.focus();
-  });
-  closeBtn.addEventListener('click', () => {
-    chatWindow.classList.add('hidden');
-    toggleBtn.style.display = 'flex';
-  });
+            // --- Toggle ventana ---
+            toggleBtn.addEventListener('click', () => {
+                chatWindow.classList.toggle('hidden');
+                toggleBtn.style.display = chatWindow.classList.contains('hidden') ? 'flex' : 'none';
+                input.focus();
+            });
+            closeBtn.addEventListener('click', () => {
+                chatWindow.classList.add('hidden');
+                toggleBtn.style.display = 'flex';
+            });
 
-  // --- Enviar mensaje ---
-  async function sendMessage() {
-    const text = input.value.trim();
-    if (!text) return;
+            // --- Enviar mensaje ---
+            async function sendMessage() {
+                const text = input.value.trim();
+                if (!text) return;
 
-    appendMessage('user', text);
-    input.value = '';
-    input.focus();
+                appendMessage('user', text);
+                input.value = '';
+                input.focus();
 
-    // Mostrar "bot escribiendo..."
-    const typingId = appendTyping();
+                // Mostrar "bot escribiendo..."
+                const typingId = appendTyping();
 
-    try {
-      const res = await fetch(WEBHOOK_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: text })
-      });
+                try {
+                    const res = await fetch(WEBHOOK_URL, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            message: text
+                        })
+                    });
 
-      if (!res.ok) throw new Error('Error HTTP: ' + res.status);
-      const data = await res.json();
+                    if (!res.ok) throw new Error('Error HTTP: ' + res.status);
+                    const data = await res.json();
 
-      // Extraer texto de respuesta (más tolerante)
-      let reply = extractTextFromResponse(data);
+                    // Extraer texto de respuesta (más tolerante)
+                    let reply = extractTextFromResponse(data);
 
-      removeTyping(typingId);
-      appendMessage('bot', reply || '⚠️ No se recibió texto en la respuesta.');
-    } catch (err) {
-      console.error('❌ Error en conexión o parseo:', err);
-      removeTyping(typingId);
-      appendMessage('bot', '⚠️ Error al conectar con el asistente. Verifica el flujo en n8n.');
-    }
-  }
+                    removeTyping(typingId);
+                    appendMessage('bot', reply || '⚠️ No se recibió texto en la respuesta.');
+                } catch (err) {
+                    console.error('❌ Error en conexión o parseo:', err);
+                    removeTyping(typingId);
+                    appendMessage('bot', '⚠️ Error al conectar con el asistente. Verifica el flujo en n8n.');
+                }
+            }
 
-  // --- Función robusta para extraer texto de cualquier respuesta ---
-  // --- Función ultra robusta para extraer texto de cualquier respuesta n8n ---
-function extractTextFromResponse(data) {
-  if (!data) return null;
+            // --- Función robusta para extraer texto de cualquier respuesta ---
+            // --- Función ultra robusta para extraer texto de cualquier respuesta n8n ---
+            function extractTextFromResponse(data) {
+                if (!data) return null;
 
-  // Si es string, retornarlo directo
-  if (typeof data === 'string') return data;
+                // Si es string, retornarlo directo
+                if (typeof data === 'string') return data;
 
-  // Si es objeto con campos comunes
-  if (data.reply || data.response || data.message)
-    return data.reply || data.response || data.message;
+                // Si es objeto con campos comunes
+                if (data.reply || data.response || data.message)
+                    return data.reply || data.response || data.message;
 
-  // 🔍 Búsqueda recursiva: encuentra la primera cadena o propiedad "output"/"text"
-  function deepSearch(obj) {
-    if (obj == null) return null;
+                // 🔍 Búsqueda recursiva: encuentra la primera cadena o propiedad "output"/"text"
+                function deepSearch(obj) {
+                    if (obj == null) return null;
 
-    if (typeof obj === 'string') return obj;
-    if (typeof obj !== 'object') return null;
+                    if (typeof obj === 'string') return obj;
+                    if (typeof obj !== 'object') return null;
 
-    // Si tiene campo "output" o "text", úsalo
-    if (obj.output && typeof obj.output === 'string') return obj.output;
-    if (obj.text && typeof obj.text === 'string') return obj.text;
+                    // Si tiene campo "output" o "text", úsalo
+                    if (obj.output && typeof obj.output === 'string') return obj.output;
+                    if (obj.text && typeof obj.text === 'string') return obj.text;
 
-    // Buscar dentro de propiedades hijas
-    for (const key in obj) {
-      const val = obj[key];
-      const found = deepSearch(val);
-      if (found) return found;
-    }
+                    // Buscar dentro de propiedades hijas
+                    for (const key in obj) {
+                        const val = obj[key];
+                        const found = deepSearch(val);
+                        if (found) return found;
+                    }
 
-    return null;
-  }
+                    return null;
+                }
 
-  const found = deepSearch(data);
-  if (found) return found;
+                const found = deepSearch(data);
+                if (found) return found;
 
-  // Si es array, buscar en elementos
-  if (Array.isArray(data)) {
-    for (const item of data) {
-      const found = extractTextFromResponse(item);
-      if (found) return found;
-    }
-  }
+                // Si es array, buscar en elementos
+                if (Array.isArray(data)) {
+                    for (const item of data) {
+                        const found = extractTextFromResponse(item);
+                        if (found) return found;
+                    }
+                }
 
-  // Último recurso: mostrar el JSON completo
-  return JSON.stringify(data);
-}
+                // Último recurso: mostrar el JSON completo
+                return JSON.stringify(data);
+            }
 
-  // --- Mostrar mensaje en el chat ---
-  function appendMessage(sender, text) {
-    const msg = document.createElement('div');
-    msg.className = sender === 'user' ? 'text-right' : 'text-left';
-    msg.innerHTML = `
+            // --- Mostrar mensaje en el chat ---
+            function appendMessage(sender, text) {
+                const msg = document.createElement('div');
+                msg.className = sender === 'user' ? 'text-right' : 'text-left';
+                msg.innerHTML = `
       <div class="${sender === 'user'
         ? 'inline-block bg-primary text-white px-3 py-2 rounded-lg mb-1 max-w-[80%]'
         : 'inline-block bg-gray-200 text-gray-800 px-3 py-2 rounded-lg mb-1 max-w-[80%]'}">
         ${escapeHtml(text)}
       </div>`;
-    messages.appendChild(msg);
-    messages.scrollTop = messages.scrollHeight;
-  }
+                messages.appendChild(msg);
+                messages.scrollTop = messages.scrollHeight;
+            }
 
-  // --- Añadir indicador "bot escribiendo..." ---
-  function appendTyping() {
-    const id = 'typing-' + Date.now();
-    const typing = document.createElement('div');
-    typing.id = id;
-    typing.className = 'text-left';
-    typing.innerHTML = `
+            // --- Añadir indicador "bot escribiendo..." ---
+            function appendTyping() {
+                const id = 'typing-' + Date.now();
+                const typing = document.createElement('div');
+                typing.id = id;
+                typing.className = 'text-left';
+                typing.innerHTML = `
       <div class="inline-block bg-gray-200 text-gray-800 px-3 py-2 rounded-lg mb-1 max-w-[80%] flex items-center gap-1">
         <span class="animate-pulse">Escribiendo</span>
         <span class="dot1 animate-bounce">.</span>
         <span class="dot2 animate-bounce delay-150">.</span>
         <span class="dot3 animate-bounce delay-300">.</span>
       </div>`;
-    messages.appendChild(typing);
-    messages.scrollTop = messages.scrollHeight;
-    return id;
-  }
+                messages.appendChild(typing);
+                messages.scrollTop = messages.scrollHeight;
+                return id;
+            }
 
-  function removeTyping(id) {
-    const el = document.getElementById(id);
-    if (el) el.remove();
-  }
+            function removeTyping(id) {
+                const el = document.getElementById(id);
+                if (el) el.remove();
+            }
 
-  // --- Escucha Enter o clic ---
-  sendBtn.addEventListener('click', sendMessage);
-  input.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') sendMessage();
-  });
+            // --- Escucha Enter o clic ---
+            sendBtn.addEventListener('click', sendMessage);
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') sendMessage();
+            });
 
-  // --- Evita XSS ---
-  function escapeHtml(unsafe) {
-    return unsafe
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;")
-      .replace(/"/g, "&quot;")
-      .replace(/'/g, "&#039;");
-  }
-});
-</script>
+            // --- Evita XSS ---
+            function escapeHtml(unsafe) {
+                return unsafe
+                    .replace(/&/g, "&amp;")
+                    .replace(/</g, "&lt;")
+                    .replace(/>/g, "&gt;")
+                    .replace(/"/g, "&quot;")
+                    .replace(/'/g, "&#039;");
+            }
+        });
+    </script>
 
 
     {{-- Idealmente carga mermaid y tus scripts via Vite --}}

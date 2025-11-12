@@ -12,6 +12,8 @@ class RedactorIAController extends Controller
 
     public function stream(Request $request)
     {
+
+
         // dd($request->all());
         $introduccion = "Eres un redactor profesional en español (MX): mejora claridad, Ortografía y tono profesional sin inventar datos. Devuelve solo el texto mejorado minimo 250 caracteres. trabajas para Litoprocess.";
         $objetivoEjemplo = "
@@ -42,7 +44,7 @@ class RedactorIAController extends Controller
                     4. Aplica para el área de Recursos Humanos y todos los colaboradores de Litoprocess involucrados en el proceso de reclutamiento y selección.
                     5. Aplica a todos los procesos de Litoprocess que intervienen en la manufactura de un producto 
                       que requiere un servicio de tercerización. 
-        "; 
+        ";
         $politicasEjemplo = "
                     1. La Inducción a la Empresa se le dará a todos los colaboradores de nuevo ingreso inmediato en un lapso 
                        no mayor a 7 días. 
@@ -89,8 +91,8 @@ class RedactorIAController extends Controller
                         estabilizar al paciente hasta la llegada de los servicios médicos. 
 
         ";
-            
-            // dd($request->type);
+
+        // dd($request->type);
         switch ($request->type) {
             case 'objetivo':
                 $system = " $introduccion Recibiras un texto que describe el objetivo de un procedimiento. Tu tarea es mejorar la claridad, fluidez y profesionalismo del texto sin alterar su significado original, si el texto es muy corto amuenta sin alterar o inventar minimo 250 caracteres devuelve solo el texto mejorado. basado en los sigiuientes ejemplos: {$objetivoEjemplo}";
@@ -151,7 +153,6 @@ class RedactorIAController extends Controller
                 @flush();
             }
         };
-
         return new StreamedResponse($stream, 200, [
             'Content-Type'  => 'text/event-stream; charset=utf-8',
             'Cache-Control' => 'no-cache, no-transform',
@@ -164,28 +165,95 @@ class RedactorIAController extends Controller
     {
 
         $pasos = $request->input('pasos');
-        
+
         $resp = OpenAI::chat()->create([
             'model' => 'gpt-4o-mini',
             'messages' => [
                 [
                     'role' => 'system',
-                    'content' => 'Eres un creador profesional de diagramas en Mermaid. Tu función es recibir del usuario una serie de pasos o instrucciones para crear un diagrama y generar exclusivamente el código Mermaid correspondiente.
+                    'content' => '
+                    [SISTEMA] Rol:
+                    Eres un creador profesional de diagramas Mermaid. Tu tarea es transformar pasos/instrucciones del usuario en DIAGRAMAS Mermaid válidos y listos para renderizar.
 
-                    REGLAS ESTRICTAS:
-                    1. Analiza cuidadosamente todos los pasos proporcionados por el usuario
-                    2. No omitas ningún paso o elemento mencionado
-                    3. Tu respuesta debe contener ÚNICAMENTE el código Mermaid, sin explicaciones, comentarios, texto adicional o formato markdown
-                    4. No agregues elementos que no fueron solicitados
-                    5. El código debe ser funcional y seguir la sintaxis correcta de Mermaid
-                    6. Si hay ambigüedad en los pasos, usa tu criterio profesional para crear un diagrama coherente pero siempre basado en lo solicitado
+                    [OBJETIVO]
+                    Generar EXCLUSIVAMENTE código Mermaid funcional, sin textos adicionales, que represente fielmente todos los elementos e interacciones descritas por el usuario, con especial atención a NO OMITIR NINGUNA DECISIÓN NI SUS RAMAS.
 
-                    Ejemplo de respuesta esperada:
-                    graph TD
-                        A[Inicio] --> B[Proceso]
-                        B --> C[Fin]
+                    [ENTRADA ESPERADA]
+                    - El usuario puede dar instrucciones libres (texto) o estructura (lista, tabla, JSON/YAML).
+                    - Si el usuario especifica tipo de diagrama, dirección, estilos, subgráficos, notas, actores, etiquetas o nombres de nodos, respétalos.
+                    - Si entrega varios conjuntos de pasos, entiende que solicita varios diagramas.
 
-                    No incluyas ```mermaid ni ningún otro marcado. Solo el código puro.',
+                    [FORMATO DE SALIDA — MUY IMPORTANTE]
+                    - Responde ÚNICAMENTE con código Mermaid válido.
+                    - No uses backticks, no uses ```mermaid, no agregues comentarios, explicaciones, ni texto extra.
+                    - Si el usuario solicita varios diagramas, colócalos en el orden dado y sepáralos por UNA línea en blanco (sin texto intermedio).
+
+                    [REGLAS ESTRICTAS]
+                    1) Analiza cuidadosamente todos los pasos, entidades y relaciones. No omitas ningún elemento, relación, condición o DECISIÓN.
+                    2) No agregues nada que el usuario no haya pedido. Mantén nombres, etiquetas y orden cuando aplique.
+                    3) El código debe compilar en Mermaid y seguir la sintaxis correcta.
+                    4) Si hay ambigüedad:
+                    - Si es AMBIGÜEDAD CRÍTICA que impide representar las decisiones (p. ej., se describe una condición pero no se indican sus salidas), realiza UNA sola pregunta clara.
+                    - Si no es crítica, usa tu criterio profesional para producir la versión más coherente, mínima y fiel a lo solicitado, manteniendo todas las decisiones mencionadas.
+                    5) Escapa caracteres especiales cuando sea necesario para preservar el texto del usuario.
+                    6) No apliques estilos, init, clases o temas a menos que el usuario lo pida.
+                    7) Mantén consistencia visual (dirección, nodos, flechas) según lo solicitado.
+
+                    [ENFASIS EN DECISIONES — OBLIGATORIO]
+                    A) Detección:
+                    - Identifica explícitamente cada decisión en el texto: palabras como “si…”, “en caso de…”, “cuando…”, “según…”, “condición”, “validación”, “aprobado/rechazado”, etc.
+                    - Considera decisiones implícitas (p. ej., “si falla X, entonces Y”).
+                    B) Representación:
+                    - En flowchart: usa nodos de decisión con llaves `{}` y crea una arista por cada rama mencionada (p. ej., `|Sí|`, `|No|`, `|Error|`, `|>5|`, `|<=5|`).
+                    - En sequenceDiagram: usa bloques `alt`, `else`, `opt`, `par` según corresponda, replicando TODAS las ramas descritas.
+                    - En stateDiagram-v2: usa transiciones guardadas y estados para cada condición y salida.
+                    - En journey/gantt/erDiagram/classDiagram/mindmap/pie: si el usuario describe decisiones, transpórtalas al tipo lo más fiel posible (p. ej., subnodos o secciones), sin inventar ramas.
+                    C) Exhaustividad:
+                    - Crea una salida por CADA rama explicitamente mencionada en el texto.
+                    - Si el usuario menciona “en caso contrario”, incluye una rama “Else/Default” exactamente con el texto dado por el usuario.
+                    - NO inventes ramas no mencionadas. Si el texto insinúa varias pero no las nombra, pregunta solo si es crítico (ver 4).
+                    D) Claridad de etiquetas:
+                    - Etiqueta cada arista/segmento de decisión con el texto de la condición tal como lo dio el usuario (o su versión mínimamente normalizada).
+                    E) Bucles y salidas:
+                    - Si una rama regresa a un paso previo (reintento/loop), dibuja la arista de regreso explícitamente.
+                    - Asegura que todas las ramas lleven a un estado/acción o terminación definida, si así lo indica el usuario.
+
+                    [TIPOS DE DIAGRAMA SOPORTADOS]
+                    - flowchart (flowchart TD/LR/RL/BT)
+                    - sequenceDiagram
+                    - classDiagram
+                    - stateDiagram-v2
+                    - erDiagram
+                    - gantt
+                    - journey
+                    - mindmap
+                    - pie
+                    Si no se especifica el tipo y no es inferible por la estructura, usa `flowchart TD`.
+
+                    [MAPEO Y CONVENCIONES]
+                    - Pasos → nodos; relaciones → aristas con etiquetas de acción.
+                    - Decisiones condicionales → nodos `{}` (flowchart), `alt/else/opt/par` (sequence), transiciones guardadas (state).
+                    - Paralelismo → ramas concurrentes o `par`/subgraphs si el usuario lo indica.
+                    - Agrupaciones/etapas → `subgraph` cuando el usuario lo pida explícitamente.
+                    - Fechas/hitos (Gantt) y actores (sequence/journey) se toman literalmente del usuario.
+
+                    [VALIDACIÓN ANTES DE RESPONDER]
+                    - Verifica: tipo correcto, dirección definida, sintaxis válida, nodos referenciados existentes, etiquetas exactas del usuario y ausencia total de texto no-Mermaid.
+                    - CHEQUEO DE DECISIONES: confirma que cada decisión identificada tiene TODAS sus ramas mencionadas y correctamente conectadas; sin ramas huérfanas ni faltantes.
+
+                    [EJEMPLO DE RESPUESTA (NO LO IMPRIMAS)]
+                    flowchart TD
+                    A[Inicio] --> B{¿Condición X?}
+                    B -->|Sí| C[Tarea 1]
+                    B -->|No| D[Tarea 2]
+                    C --> E{¿Pasa validación Y?}
+                    E -->|Aprobado| F[Registrar]
+                    E -->|Rechazado| G[Notificar]
+                    D --> H[Fin]
+                    F --> H[Fin]
+                    G --> H[Fin]
+
+                    ',
                 ],
                 [
                     'role' => 'user',

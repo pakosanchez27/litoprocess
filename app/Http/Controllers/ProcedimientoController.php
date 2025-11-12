@@ -22,40 +22,42 @@ class ProcedimientoController extends Controller
 
         // dd($request->all());    
         // 1) Validación base (campos de texto principales)
-        $request->validate([
-            'tipo_documento'         => 'required',
-            'area_codigo'            => 'required',
-            'consecutivo'             => 'required',
-            'fecha_emision'          => 'required|date|date_format:Y-m-d',
-            'elaboro_area'           => 'required|string|max:255',
-            // OJO: este es el campo de "chips" de la parte superior (CSV).
-            // Si no quieres que sea obligatorio, déjalo nullable:
-            'referencias_normativas' => 'nullable|string|max:2000',
-            'codigo'                 => 'required',
-            'titulo'                 => 'required',
+         $request->validate([
+             'tipo_documento'         => 'required',
+             'area_codigo'            => 'required',
+             'consecutivo'             => 'required',
+             'fecha_emision'          => 'required|date|date_format:Y-m-d',
+             'elaboro_area'           => 'required|string|max:255',
+             // OJO: este es el campo de "chips" de la parte superior (CSV).
+             // Si no quieres que sea obligatorio, déjalo nullable:
+             'referencias_normativas' => 'nullable|string|max:2000',
+             'referencias_internas'   => 'nullable|string|max:2000',
 
-            'elaboro_nombre'         => 'required|string|max:255',
-            'reviso_nombre'          => 'required|string|max:255',
-            'autorizo_nombre'        => 'required|string|max:255',
-            'elaboro_cargo'          => 'required|string|max:255',
-            'reviso_cargo'           => 'required|string|max:255',
-            'autorizo_cargo'         => 'required|string|max:255',
+             'codigo'                 => 'required',
+             'titulo'                 => 'required',
 
-            'objetivo'               => 'required|string|max:1200',
-            'alcance'                => 'required|string|max:1200',
-            // "Políticas" ahora via JSON hidden politicas_json, así que este puede ser nullable.
-            // 'politicas'              => 'nullable|string|max:2000',
+             'elaboro_nombre'         => 'required|string|max:255',
+             'reviso_nombre'          => 'required|string|max:255',
+             'autorizo_nombre'        => 'required|string|max:255',
+             'elaboro_cargo'          => 'required|string|max:255',
+             'reviso_cargo'           => 'required|string|max:255',
+             'autorizo_cargo'         => 'required|string|max:255',
+
+             'objetivo'               => 'required|string|max:1200',
+             'alcance'                => 'required|string|max:1200',
+             // "Políticas" ahora via JSON hidden politicas_json, así que este puede ser nullable.
+             // 'politicas'              => 'nullable|string|max:2000',
 
 
-            // Listas varias:
+         // Listas varias:
             'definiciones'           => 'nullable|string', // JSON
             'desarrollo_json'        => 'nullable|string', // JSON pasos
 
 
-            // Diagrama
-            'diagrama_png'           => 'nullable|string',
+             // Diagrama
+             'diagrama_png'           => 'nullable|string',
 
-        ]);
+         ]);
 
         // dd($request->all());
 
@@ -84,9 +86,13 @@ class ProcedimientoController extends Controller
             return ['codigo' => '', 'nombre' => trim($raw)];
         };
 
-        // 2) Decodificar y normalizar los chips multi (REFERENCIAS y FORMATOS)
-        $referenciasRaw = $decodeJson($request->input('referencias_json')); // array
-        $formatosRaw    = $decodeJson($request->input('formatos_json'));    // array
+        // 2) Decodificar y normalizar los chips multi (REFERENCIAS, FORMATOS, y REFERENCIAS INTERNAS/NORMATIVAS)
+        $referenciasRaw   = $decodeJson($request->input('referencias_json'));        // array
+        $formatosRaw      = $decodeJson($request->input('formatos_json'));           // array
+        $refNormativasRaw = $decodeJson($request->input('referencias_normativas'));  // array
+        $refInternasRaw   = $decodeJson($request->input('referencias_internas'));    // array
+
+
 
         // Normaliza a [{codigo, nombre}]
         $normList = static function (array $raw) use ($splitCodigoNombre): array {
@@ -114,14 +120,14 @@ class ProcedimientoController extends Controller
             return $out;
         };
 
-        $referencias = $normList($referenciasRaw);
-        $formatos    = $normList($formatosRaw);
+        $referencias       = $normList($referenciasRaw);
+        $formatos          = $normList($formatosRaw);
+        $refNormativas     = $normList($refNormativasRaw);
+        $refInternas       = $normList($refInternasRaw);
 
         // 2b) Reglas de “no vacío” (por si enviaron JSON válido pero vacío)
+        // 2b) Reglas de “no vacío” (solo para formatos)
         $customErrors = [];
-        if (count($referencias) === 0) {
-            $customErrors['referencias_json'] = 'Agrega al menos una referencia.';
-        }
         if (count($formatos) === 0) {
             $customErrors['formatos_json'] = 'Agrega al menos un formato.';
         }
@@ -182,18 +188,45 @@ class ProcedimientoController extends Controller
                 'politicas'              => implode("\n", array_map($clean, $politicasArr)),
             ]);
 
-            // 7) Referencias (texto numerado 3.x)
-            if ($referencias) {
-                $lineas = [];
-                foreach ($referencias as $i => $r) {
+            // 7) Referencias (texto jerárquico 3.x)
+            $refLines = [];
+
+            //
+            // 🔹 3.1 Referencias Normativas
+            //
+            if ($refNormativas && count($refNormativas)) {
+                $refLines[] = "3.1 Referencias Normativas";
+                foreach ($refNormativas as $i => $r) {
                     $codigo = $clean($r['codigo'] ?? '');
                     $nombre = $clean($r['nombre'] ?? '');
-                    $lineas[] = '3.' . ($i + 1) . ' ' . ($codigo !== '' ? "[$codigo] " : '') . $nombre;
+                    $num = '3.1.' . ($i + 1);
+                    $refLines[] = "{$num} " . ($codigo !== '' ? "[$codigo] " : '') . $nombre;
                 }
-                $template->setValue('referencias_lista', implode("\n", $lineas));
             } else {
-                $template->setValue('referencias_lista', '');
+                $refLines[] = "3.1 Referencias Normativas";
+                $refLines[] = "3.1.1 (Sin referencias normativas registradas)";
             }
+
+            //
+            // 🔹 3.2 Referencias Internas
+            //
+            if ($refInternas && count($refInternas)) {
+                $refLines[] = "3.2 Referencias Internas";
+                foreach ($refInternas as $i => $r) {
+                    $codigo = $clean($r['codigo'] ?? '');
+                    $nombre = $clean($r['nombre'] ?? '');
+                    $num = '3.2.' . ($i + 1);
+                    $refLines[] = "{$num} " . ($codigo !== '' ? "[$codigo] " : '') . $nombre;
+                }
+            } else {
+                $refLines[] = "3.2 Referencias Internas";
+                $refLines[] = "3.2.1 (Sin referencias internas registradas)";
+            }
+
+            // 🔸 Colocar todo el bloque en la plantilla
+            $template->setValue('referencias_lista', implode("\n", $refLines));
+
+
 
             // 8) Formatos (texto numerado 4.x)
             if ($formatos) {
@@ -242,9 +275,11 @@ class ProcedimientoController extends Controller
                 ]);
             }
 
-            // 11) Indicadores (tabla): cloneRow
+            // 11) Indicadores (tabla o texto "No aplica")
             $inds = array_values(array_filter(($indicadores ?? []), 'is_array'));
-            if ($inds) {
+
+            if (!empty($inds)) {
+                // Hay indicadores → genera filas normalmente
                 $rows = [];
                 foreach ($inds as $it) {
                     $rows[] = [
@@ -256,14 +291,15 @@ class ProcedimientoController extends Controller
                 }
                 $template->cloneRowAndSetValues('indicadores_nombre', $rows);
             } else {
+                // No hay indicadores → clona una sola fila y pon "No aplica"
                 $template->cloneRow('indicadores_nombre', 1);
-                $template->setValues([
-                    'indicadores_nombre'      => '',
-                    'indicadores_meta'        => '',
-                    'indicadores_frecuencia'  => '',
-                    'indicadores_responsable' => '',
-                ]);
+                $template->setValue('indicadores_nombre#1', '-');
+                $template->setValue('indicadores_meta#1', '—');
+                $template->setValue('indicadores_frecuencia#1', '—');
+                $template->setValue('indicadores_responsable#1', '—');
             }
+
+
 
             // 12) Diagrama PNG (opcional)
             $pngEncoded = $request->input('diagrama_png');

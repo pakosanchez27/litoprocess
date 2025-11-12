@@ -249,7 +249,7 @@ async function renderDiagramaIA() {
     if (codeEl) codeEl.value = mermaidCode;
 
     // 4️⃣ Enviar el código Mermaid al webhook de n8n (genera el PNG)
-    const response = await fetch('https://n8n.srv914565.hstgr.cloud/webhook/generador-diagrama', {
+    const response = await fetch('https://litoprocess.aeo-ai.com/webhook/generador-diagrama', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ pasos: mermaidCode })

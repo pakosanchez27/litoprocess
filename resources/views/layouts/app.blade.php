@@ -33,7 +33,7 @@
 
     <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="../assets/img/favicon/favicon.ico" />
-    <link rel="stylesheet" href="../../assets//vendor/fonts/iconify-icons.css" />
+    {{-- <link rel="stylesheet" href="../../assets//vendor/fonts/iconify-icons.css" /> --}}
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
 
     <!-- Fonts -->
@@ -292,16 +292,16 @@
     @vite(['resources/js/main.js'])
     @vite(['resources/js/config.js'])
     @vite(['resources/js/ui-toasts.js'])
-    @vite(['resources/js/ui-modals.js'])
-    @vite(['resources/js/form-basic-inputs.js'])
+    {{-- @vite(['resources/js/ui-modals.js']) --}}
+    {{-- @vite(['resources/js/form-basic-inputs.js']) --}}
     @vite(['resources/js/extended-ui-perfect-scrollbar.js'])
     @vite(['resources/js/ui-popover.js'])
     @vite(['resources/js/pages-account-settings-account.js'])
-    @vite(['resources/js/dashboards-analytics.js'])
+    {{-- @vite(['resources/js/dashboards-analytics.js']) --}}
     
 
     <!-- Page JS -->
-    <script src="{{ asset('js/dashboards-analytics.js') }}"></script>
+    {{-- <script src="{{ asset('js/dashboards-analytics.js') }}"></script> --}}
 
     <!-- Place this tag in your head or just before your close body tag. -->
     <script async defer src="https://buttons.github.io/buttons.js"></script>
