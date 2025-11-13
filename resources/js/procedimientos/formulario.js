@@ -606,57 +606,54 @@ function makeChipsMulti({
     };
 }
 
-// Instancias
-const refsCtrl = makeChipsMulti({
-    inputId: 'ref_input',
-    chipsId: 'chips_referencias',
-    hiddenId: 'referencias_json',
-    feedbackId: 'referencias_feedback',
-    min: 1
-});
-const fmtsCtrl = makeChipsMulti({
-    inputId: 'fmt_input',
-    chipsId: 'chips_formatos',
-    hiddenId: 'formatos_json',
-    feedbackId: 'formatos_feedback',
-    min: 1
-});
-// Referencias Normativas
-const refnormCtrl = makeChipsMulti({
-    inputId: 'refnorm_input',
-    chipsId: 'chips_refnorm',
-    hiddenId: 'refnorm_json',
-    feedbackId: 'refnorm_feedback',
-    min: 1
-});
-// Referencias Internas (nuevo)
-const refintCtrl = makeChipsMulti({
-    inputId: 'refint_input',
-    chipsId: 'chips_refint',
-    hiddenId: 'refint_json',
-    feedbackId: 'refint_feedback',
-    min: 1
+document.addEventListener("DOMContentLoaded", () => {
+    window.refnormCtrl = makeChipsMulti({
+        inputId: 'refnorm_input',
+        chipsId: 'chips_refnorm',
+        hiddenId: 'refnorm_json',
+        feedbackId: 'refnorm_feedback',
+        min: 1
+    });
+
+    window.refintCtrl = makeChipsMulti({
+        inputId: 'refint_input',
+        chipsId: 'chips_refint',
+        hiddenId: 'refint_json',
+        feedbackId: 'refint_feedback',
+        min: 1
+    });
+
+    window.fmtsCtrl = makeChipsMulti({
+        inputId: 'fmt_input',
+        chipsId: 'chips_formatos',
+        hiddenId: 'formatos_json',
+        feedbackId: 'formatos_feedback',
+        min: 1
+    });
 });
 
+// Validación al enviar
+document.addEventListener("DOMContentLoaded", () => {
 
+    document.getElementById('procedimientoForm')?.addEventListener('submit', (e) => {
+        let ok = true;
 
-// Validación al enviar (cliente)
-document.getElementById('procedimientoForm')?.addEventListener('submit', (e) => {
-    let ok = true;
-    if (refsCtrl && !refsCtrl.validate()) ok = false;
-    if (fmtsCtrl && !fmtsCtrl.validate()) ok = false;
-    if (refintCtrl && !refintCtrl.validate()) ok = false;
-    if (refnormCtrl && !refnormCtrl.validate()) ok = false;
-    if (!ok) {
-        e.preventDefault();
-        e.stopPropagation();
-        (document.querySelector('.is-invalid') || document.getElementById('referencias_feedback'))
-            ?.scrollIntoView({
+        if (fmtsCtrl && !fmtsCtrl.validate()) ok = false;
+        if (refintCtrl && !refintCtrl.validate()) ok = false;
+        if (refnormCtrl && !refnormCtrl.validate()) ok = false;
+
+        if (!ok) {
+            e.preventDefault();
+            e.stopPropagation();
+            document.querySelector('.is-invalid')?.scrollIntoView({
                 behavior: 'smooth',
                 block: 'center'
             });
-    }
+        }
+    });
+
 });
+
 
 // campo oculto en areas 
 
@@ -725,49 +722,3 @@ document.addEventListener('DOMContentLoaded', () => {
     area.addEventListener('change', actualizarElaboroArea);
 });
 
-// Descativada hasta que se muestre el diagrama
-document.addEventListener('DOMContentLoaded', function () {
-    const btn = document.getElementById('btnGenerarPDF');
-    const preview = document.getElementById('mermaidPreview');
-
-    /** Verifica si #mermaidPreview tiene una imagen renderizada visible */
-    function verificarDiagrama() {
-        if (!preview) return;
-
-        const img = preview.querySelector('img');
-
-        // Caso válido: hay una <img> y se ha cargado (tamaño mayor a 0)
-        const diagramaListo = img && img.complete && img.naturalWidth > 0;
-
-        if (diagramaListo) {
-            btn.disabled = false;
-            btn.classList.remove('opacity-50', 'cursor-not-allowed');
-        } else {
-            btn.disabled = true;
-            btn.classList.add('opacity-50', 'cursor-not-allowed');
-        }
-    }
-
-    // 🧠 Observa cambios en el DOM dentro de #mermaidPreview
-    const observer = new MutationObserver(() => verificarDiagrama());
-    if (preview) {
-        observer.observe(preview, {
-            childList: true,
-            subtree: true
-        });
-    }
-
-    // También valida cada medio segundo por si la imagen se carga de forma tardía
-    const interval = setInterval(verificarDiagrama, 500);
-
-    // Primera validación al cargar
-    verificarDiagrama();
-
-    // Limpia el intervalo si el botón ya se habilitó
-    const stopWhenReady = setInterval(() => {
-        if (!btn.disabled) {
-            clearInterval(interval);
-            clearInterval(stopWhenReady);
-        }
-    }, 1000);
-});

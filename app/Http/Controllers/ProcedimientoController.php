@@ -22,42 +22,42 @@ class ProcedimientoController extends Controller
 
         // dd($request->all());    
         // 1) Validación base (campos de texto principales)
-         $request->validate([
-             'tipo_documento'         => 'required',
-             'area_codigo'            => 'required',
-             'consecutivo'             => 'required',
-             'fecha_emision'          => 'required|date|date_format:Y-m-d',
-             'elaboro_area'           => 'required|string|max:255',
-             // OJO: este es el campo de "chips" de la parte superior (CSV).
-             // Si no quieres que sea obligatorio, déjalo nullable:
-             'referencias_normativas' => 'nullable|string|max:2000',
-             'referencias_internas'   => 'nullable|string|max:2000',
+        //  $request->validate([
+        //      'tipo_documento'         => 'required',
+        //      'area_codigo'            => 'required',
+        //      'consecutivo'             => 'required',
+        //      'fecha_emision'          => 'required|date|date_format:Y-m-d',
+        //      'elaboro_area'           => 'required|string|max:255',
+        //      // OJO: este es el campo de "chips" de la parte superior (CSV).
+        //      // Si no quieres que sea obligatorio, déjalo nullable:
+        //      'referencias_normativas' => 'nullable|string|max:2000',
+        //      'referencias_internas'   => 'nullable|string|max:2000',
 
-             'codigo'                 => 'required',
-             'titulo'                 => 'required',
+        //      'codigo'                 => 'required',
+        //      'titulo'                 => 'required',
 
-             'elaboro_nombre'         => 'required|string|max:255',
-             'reviso_nombre'          => 'required|string|max:255',
-             'autorizo_nombre'        => 'required|string|max:255',
-             'elaboro_cargo'          => 'required|string|max:255',
-             'reviso_cargo'           => 'required|string|max:255',
-             'autorizo_cargo'         => 'required|string|max:255',
+        //      'elaboro_nombre'         => 'required|string|max:255',
+        //      'reviso_nombre'          => 'required|string|max:255',
+        //      'autorizo_nombre'        => 'required|string|max:255',
+        //      'elaboro_cargo'          => 'required|string|max:255',
+        //      'reviso_cargo'           => 'required|string|max:255',
+        //      'autorizo_cargo'         => 'required|string|max:255',
 
-             'objetivo'               => 'required|string|max:1200',
-             'alcance'                => 'required|string|max:1200',
-             // "Políticas" ahora via JSON hidden politicas_json, así que este puede ser nullable.
-             // 'politicas'              => 'nullable|string|max:2000',
-
-
-         // Listas varias:
-            'definiciones'           => 'nullable|string', // JSON
-            'desarrollo_json'        => 'nullable|string', // JSON pasos
+        //      'objetivo'               => 'required|string|max:1200',
+        //      'alcance'                => 'required|string|max:1200',
+        //      // "Políticas" ahora via JSON hidden politicas_json, así que este puede ser nullable.
+        //      // 'politicas'              => 'nullable|string|max:2000',
 
 
-             // Diagrama
-             'diagrama_png'           => 'nullable|string',
+        //  // Listas varias:
+        //     'definiciones'           => 'nullable|string', // JSON
+        //     'desarrollo_json'        => 'nullable|string', // JSON pasos
 
-         ]);
+
+        //      // Diagrama
+        //      'diagrama_png'           => 'nullable|string',
+
+        //  ]);
 
         // dd($request->all());
 
@@ -165,14 +165,28 @@ class ProcedimientoController extends Controller
                 $v = is_scalar($v) ? trim((string)$v) : '';
                 return ($v !== '') ? $v : $default;
             };
+            $refNormativasRaw = $val('referencias_normativas', '');
 
+            // Intenta decodificar (si es JSON válido)
+            $refNormativas = json_decode($refNormativasRaw, true);
+
+            // Si es un array válido, extrae solo los códigos
+            if (is_array($refNormativas)) {
+                $soloCodigos = array_column($refNormativas, 'codigo');
+
+                // Convierte a CSV y limpia valores
+                $referenciasNormativasCSV = implode(', ', array_map('trim', $soloCodigos));
+            } else {
+                // Si no es JSON válido, úsalo como string simple
+                $referenciasNormativasCSV = $refNormativasRaw;
+            }
             // 6) Set de valores simples
             $template->setValues([
                 'fecha_emision'          => $formattedDate,
                 'elaboro_area'           => $val('elaboro_area', ''),
                 'codigo'                 => $val('codigo', ''),
                 'revision'               => $val('revision', '00'),
-                'referencias_normativas' => $val('referencias_normativas', ''), // CSV opcional
+                'referencias_normativas' => $referenciasNormativasCSV,
                 'titulo'                 => $val('titulo', ''),
 
                 'elaboro_nombre'         => $val('elaboro_nombre', ''),
